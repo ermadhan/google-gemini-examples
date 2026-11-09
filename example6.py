@@ -1,3 +1,4 @@
+# Inspect webhooks with REST and the SDK, then ping, update, and delete one.
 import http.client
 import json
 import os
@@ -84,6 +85,8 @@ webhooks = client.webhooks.list()
 print(webhooks.model_dump_json(indent=2))
 
 
+# Replace this example ID with the intended webhook. The enabled update and
+# delete operations below modify and delete that webhook in the project.
 webhook_id = "i8g6br9yu104gax43fi95rqzjvr3yfofuyeb"
 operation = "ping"
 try:

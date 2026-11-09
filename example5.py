@@ -1,4 +1,5 @@
-#https://github.com/google-gemini/cookbook/blob/main/quickstarts/Webhooks.ipynb
+# Register a webhook for video-generation events.
+# Based on https://github.com/google-gemini/cookbook/blob/main/quickstarts/Webhooks.ipynb
 import os
 from google import genai
 from google.genai import errors, types
@@ -9,6 +10,7 @@ if not GEMINI_API_KEY:
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
+# Replace this URL with a receiver you control before creating a webhook.
 WEBHOOK_ENDPOINT="https://gemini-webhook-receiver-670516618964.europe-west1.run.app/"
 
 import requests
@@ -48,6 +50,7 @@ try:
         # 🔑 Extracting the correct keys from the raw REST response dict
         signing_secret = webhook_json.get("secret")
         webhook_id = webhook_json.get("name") # Usually returns webhooks/id-string
+        # The response can contain the signing secret; keep console output private.
         print(json.dumps(webhook_json, indent=2))
         print("\n✅ Webhook created completely!")
         print("--------------------------------------------------")

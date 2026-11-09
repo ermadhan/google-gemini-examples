@@ -1,3 +1,4 @@
+# Compare a stateful chat with a separate Interactions API request.
 from google import genai
 import os
 
@@ -27,4 +28,5 @@ print(f"Number of steps: {len(interaction.steps)}")
 for j, step in enumerate(interaction.steps):
     print(f"  Step {j}: type={step.type}")
 
+# This example assumes the final step contains at least one text content item.
 print(interaction.steps[-1].content[0].text)

@@ -1,3 +1,4 @@
+# Generate an image and save the returned base64-encoded bytes as a PNG.
 import base64
 from pathlib import Path
 import os
@@ -9,6 +10,7 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("Set the GEMINI_API_KEY environment variable before running this script.")
 
+# Image generation can take longer than a text request; the timeout is in milliseconds.
 client = genai.Client(
     api_key=GEMINI_API_KEY,
     http_options=types.HttpOptions(timeout=180_000),

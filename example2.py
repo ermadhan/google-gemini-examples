@@ -1,3 +1,4 @@
+# Explore response steps, system instructions, token limits, and image input.
 from google import genai
 import os
 
@@ -112,7 +113,8 @@ else:
     print("No thought signature found in this response.")
 print("----------------------------------------------------------------")
 
-# Upload a local image, then include its file URI in a multimodal prompt.
+# Upload a local image to the File API, then reference it in a multimodal prompt.
+# The relative filename is resolved from the current working directory.
 image_filename = "generated_elephants_giraffes_zebras_sunset.jpg"
 print("----------------------------------------------------------------")
 print("What do you see in this image? Describe it briefly.")

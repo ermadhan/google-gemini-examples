@@ -1,3 +1,4 @@
+# Translate an audio URL into a local WAV file using Gemini Live and FFmpeg.
 import os
 import shutil
 from google import genai
@@ -26,6 +27,7 @@ from google.genai import types
 
 @contextlib.contextmanager
 def wave_file(filename, channels=1, rate=24000, sample_width=2):
+    # Live Translate output is 24 kHz mono 16-bit PCM.
     with wave.open(filename, "wb") as wf:
         wf.setnchannels(channels)
         wf.setsampwidth(sample_width)
@@ -93,12 +95,14 @@ async def send_realtime(session, audio_queue: asyncio.Queue, sample_rate: int = 
                     )
                 )
             finally:
+                # Balance queue.get() even if sending fails or the task is cancelled.
                 audio_queue.task_done()
     except asyncio.CancelledError:
         pass
 
 
 def log_exception_details(error: BaseException, prefix: str = "  ") -> None:
+    # TaskGroup errors can contain nested exception groups.
     if isinstance(error, BaseExceptionGroup):
         for nested_error in error.exceptions:
             log_exception_details(nested_error, prefix)

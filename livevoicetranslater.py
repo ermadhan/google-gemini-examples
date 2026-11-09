@@ -20,6 +20,7 @@ from google.genai import types
 
 
 MODEL = "gemini-3.5-live-translate-preview"
+# Live Translate accepts 16 kHz PCM and returns 24 kHz PCM; both streams are mono.
 INPUT_RATE = 16000
 OUTPUT_RATE = 24000
 INPUT_FRAMES = 1600
@@ -34,6 +35,7 @@ def device_id(value: str) -> int | str:
 class AudioBridge:
     def __init__(self) -> None:
         self.loop = asyncio.get_running_loop()
+        # Capture is consumed by asyncio; playback is shared with the audio callback thread.
         self.input_queue: asyncio.Queue[bytes] = asyncio.Queue(maxsize=10)
         self.output_queue: queue.Queue[bytes] = queue.Queue(maxsize=100)
         self.error: asyncio.Future[None] = self.loop.create_future()
@@ -74,6 +76,7 @@ class AudioBridge:
     def input_callback(self, indata: Any, _frames: int, _time: Any, status: Any) -> None:
         if status:
             self.loop.call_soon_threadsafe(self.fail, f"Microphone stream error: {status}")
+        # Copy the callback buffer before scheduling work on the event-loop thread.
         self.loop.call_soon_threadsafe(self.enqueue_input, bytes(indata))
 
     def output_callback(self, outdata: Any, frames: int, _time: Any, status: Any) -> None:
@@ -86,6 +89,7 @@ class AudioBridge:
             except queue.Empty:
                 break
         available = min(len(self.pending_output), byte_count)
+        # Fill the entire device buffer, padding with silence when audio is unavailable.
         outdata[:] = self.pending_output[:available] + bytes(byte_count - available)
         del self.pending_output[:available]
         if available:
@@ -113,6 +117,7 @@ async def send_microphone(session: Any, audio: AudioBridge) -> None:
 async def receive_translation(session: Any, audio: AudioBridge) -> None:
     while True:
         received = False
+        # receive() can end after a turn; start another receive for subsequent turns.
         async for response in session.receive():
             received = True
             content = response.server_content
@@ -154,6 +159,7 @@ async def run_translation(
 
     print(f"Connecting to {MODEL}...")
     async with client.aio.live.connect(model=MODEL, config=config) as session:
+        # ExitStack closes the input stream even if opening the output stream fails.
         with contextlib.ExitStack() as streams:
             streams.enter_context(sd.RawInputStream(
                 samplerate=INPUT_RATE,

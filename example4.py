@@ -1,3 +1,4 @@
+# Continue an Interactions API conversation using the previous interaction ID.
 import os
 from google import genai
 
